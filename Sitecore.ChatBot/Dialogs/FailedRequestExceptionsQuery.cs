@@ -24,7 +24,7 @@ namespace Sitecore.ChatBot.Dialogs
                 int.TryParse(entity.Entity, out count);
             }
 
-            string queryResult = "Sorry, I had troulbe retrieving the latest exceptions";
+            string query = string.Empty;
 
             var dateEntity = result.Entities.FirstOrDefault(x => x.Type.StartsWith(TimePeriodEntityPrefix));
             if (dateEntity != null)
@@ -33,7 +33,7 @@ namespace Sitecore.ChatBot.Dialogs
                 {
                     case "builtin.datetime.duration":
                         string queryTimeInterval = DateConversionUtil.ToInsightsQueryTimeInterval(dateEntity.Resolution.FirstOrDefault().Value);
-                        queryResult = await AppInsightsService.GetFailedRequestExceptions(queryTimeInterval, count);
+                        query = await AppInsightsService.GetFailedRequestExceptions(queryTimeInterval, count);
                         break;
                     case "builtin.datetime.date":
                         string startDateTime = dateEntity.Resolution.FirstOrDefault().Value;
@@ -42,15 +42,15 @@ namespace Sitecore.ChatBot.Dialogs
                         {
                             goto default;
                         }
-                        queryResult = await AppInsightsService.GetFailedRequestExceptions(dateTime, count);
+                        query = await AppInsightsService.GetFailedRequestExceptions(dateTime, count);
                         break;
                     default:
-                        queryResult = await AppInsightsService.GetFailedRequestExceptions(null, count);
+                        query = await AppInsightsService.GetFailedRequestExceptions(null, count);
                         break;
                 }
             }
-
-            await context.PostAsync(queryResult);
+           
+            await context.PostAsync(query);
             context.Wait(MessageReceived);
         }
 

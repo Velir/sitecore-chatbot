@@ -15,15 +15,15 @@ namespace Sitecore.ChatBot.Services
             string query = Uri.EscapeDataString($"requests | where timestamp > ago({timeInterval}) and success== \"False\"| join kind = inner(exceptions | where timestamp > ago({timeInterval})) on operation_Id | project  type, method, requestName = name, requestDuration = duration| limit {count}");
 
 
-            return GetQueryResult(query);
+            return GetQueryValue(query, json => json.ToString());
         }
 
         public static Task<string> GetFailedRequestExceptions(DateTime startDateTime, int count = 10)
         {
 
             string query = Uri.EscapeDataString($"requests | where timestamp > datetime({startDateTime.ToString("yyyy-MM-dd")}) and timestamp < datetime({startDateTime.ToString("yyyy-MM-dd")}) + 1d  and success== \"False\"| join kind = inner(exceptions | where timestamp > datetime({startDateTime.ToString("yyyy-MM-dd")}) and timestamp < datetime({startDateTime.ToString("yyyy-MM-dd")}) + 1d ) on operation_Id | project  type, method, requestName = name, requestDuration = duration| limit {count}");
-
-            return GetQueryResult(query);
+      
+            return GetQueryValue(query, json => json.ToString());
         }
     }
 }
