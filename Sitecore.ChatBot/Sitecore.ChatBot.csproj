@@ -141,6 +141,7 @@
   <ItemGroup>
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Constants\AppConstants.cs" />
+    <Compile Include="Dialogs\LuisGreetingDialog.cs" />
     <Compile Include="Controllers\MessagesController.cs" />
     <Compile Include="Dialogs\FailedRequestExceptionsQuery.cs" />
     <Compile Include="Dialogs\LuisDailyStatsDialog.cs" />
