@@ -14,7 +14,7 @@ namespace Sitecore.ChatBot.Dialogs
         [LuisIntent("View Failed Requests")]
         public async Task ViewFailedRequests(IDialogContext context, LuisResult result)
         {
-            var entity = result.Entities.FirstOrDefault();
+            var entity = result.Entities.FirstOrDefault(x => x.Type.StartsWith(TimePeriodEntityPrefix));
 
             if (entity != null && entity.Type.StartsWith(TimePeriodEntityPrefix))
             {

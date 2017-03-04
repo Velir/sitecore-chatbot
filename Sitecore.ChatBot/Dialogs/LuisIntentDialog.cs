@@ -25,7 +25,7 @@ namespace Sitecore.ChatBot.Dialogs
         [LuisIntent("View Total Requests")]
         public async Task ViewTotalRequests(IDialogContext context, LuisResult result)
         {
-            var entity = result.Entities.FirstOrDefault();
+            var entity = result.Entities.FirstOrDefault(x => x.Type.StartsWith(TimePeriodEntityPrefix));
 
             if (entity != null && entity.Type.StartsWith(TimePeriodEntityPrefix))
             {
