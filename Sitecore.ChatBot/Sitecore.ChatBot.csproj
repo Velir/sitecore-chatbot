@@ -148,6 +148,7 @@
     <Compile Include="Dialogs\LuisGenericQueryDialog.cs" />
     <Compile Include="Dialogs\LuisIntentDialog.cs" />
     <Compile Include="Dialogs\LuisLogCountDialog.cs" />
+    <Compile Include="Dialogs\LuisLogLevelDialog.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -155,6 +156,7 @@
     <Compile Include="Services\AppInsightsService.cs" />
     <Compile Include="Services\DailyStatService.cs" />
     <Compile Include="Services\QueryService.cs" />
+    <Compile Include="Services\CommandControlService.cs" />
     <Compile Include="Services\LogCountService.cs" />
     <Compile Include="Utils\DateConversionutil.cs" />
   </ItemGroup>
