@@ -18,41 +18,51 @@ namespace Sitecore.ChatBot.Dialogs
 		public async Task ViewLogCount(IDialogContext context, LuisResult result)
 		{
 			var entityDateTime = result.Entities.FirstOrDefault(x => x.Type == "datetime");
-			var entitySeverity = result.Entities.FirstOrDefault(x => x.Type == "severity");
-			var severity = ResolveSeverity(entitySeverity != null ? entitySeverity.Entity : string.Empty);
-
+			var severity = ResolveSeverity(result.Entities);
+			
 			if (entityDateTime != null && entityDateTime.Type.StartsWith(TimePeriodEntityPrefix))
 			{
 				TimeSpan span;
 				TimeSpan? timeSpan = TimeSpan.TryParse(entityDateTime.Entity, out span) ? (TimeSpan?) span : null;
 				
-
-
 				var count = await AppInsightsService.GetNumberOfLogEntries(severity, timeSpan, entityDateTime.Resolution.FirstOrDefault().Value);
-
 				var timeString = timeSpan == null ? entityDateTime.Resolution.FirstOrDefault().Value : timeSpan.ToString();
 
-				await context.PostAsync($"There have been {count} {severity} log entries to the server in the requested timeframe ({timeString})");
+				await context.PostAsync($"There have been {count} {severity.TrimEnd('s')} log entries to the server in the requested timeframe ({timeString})");
 				context.Wait(MessageReceived);
 			}
 			else
 			{
 				var count = await AppInsightsService.GetNumberOfLogEntries(severity, null);
 
-				await context.PostAsync($"There have been a total of {count} {severity} log entries to the server.");
+				await context.PostAsync($"There have been a total of {count} {severity.TrimEnd('s')} log entries to the server.");
 				context.Wait(MessageReceived);
 			}
 		}
 
-		private static string ResolveSeverity(string luisEntityName)
+		private static string ResolveSeverity(IList<EntityRecommendation> entityList)
 		{
-			switch (luisEntityName)
+			if (entityList.FirstOrDefault(x => x.Type == "severity::warning") != null)
 			{
-				case "warning":
-					return "Warnings";
-				default:
-					return string.Empty;
+				return "Warnings";
 			}
+			if (entityList.FirstOrDefault(x => x.Type == "severity::error") != null)
+			{
+				return "Errors";
+			}
+			if (entityList.FirstOrDefault(x => x.Type == "severity::audit") != null)
+			{
+				return "Audits";
+			}
+			if (entityList.FirstOrDefault(x => x.Type == "severity::info") != null)
+			{
+				return "Informations";
+			}
+			if (entityList.FirstOrDefault(x => x.Type == "severity::fatal") != null)
+			{
+				return "Fatals";
+			}
+			return "";
 		}
 
 	}
