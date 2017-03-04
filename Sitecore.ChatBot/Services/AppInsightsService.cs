@@ -11,26 +11,28 @@ namespace Sitecore.ChatBot.Services
 {
     public class AppInsightsService
     {
-        public static Task<string> GetNumberOfRequestsToServer(TimeSpan? timePeriod)
+        public static Task<string> GetNumberOfRequestsToServer(TimeSpan? timePeriod = null, string period = null)
         {
             const string metric = "requests/count";
-            return GetMetricValue(metric, timePeriod);
+            period = period ?? (timePeriod != null ? DateConversionUtil.ToInsightsTimespan(timePeriod.Value) : null);
+            return GetMetricValue(metric, period);
         }
 
-        public static Task<string> GetNumberOfFailedRequests(TimeSpan? timePeriod)
+        public static Task<string> GetNumberOfFailedRequests(TimeSpan? timePeriod = null, string period = null)
         {
             const string metric = "requests/failed";
-            return GetMetricValue(metric, timePeriod);
+            period = period ?? (timePeriod != null ? DateConversionUtil.ToInsightsTimespan(timePeriod.Value) : null);
+            return GetMetricValue(metric, period);
         }
 
-        private static async Task<string> GetMetricValue(string metricName, TimeSpan? timePeriod)
+        private static async Task<string> GetMetricValue(string metricName, string timePeriod)
         {
             using (var client = CreateClient())
             {
                 var url = CreateMetricUri(metricName);
                 url = timePeriod == null
                     ? url
-                    : $"{url}?timespan={DateConversionUtil.ToInsightsTimespan(timePeriod.Value)}";
+                    : $"{url}?timespan={timePeriod}";
 
                 var response = await client.GetAsync(url);
 
