@@ -64,6 +64,34 @@ namespace Sitecore.ChatBot.Services
 
             return client;
         }
+
+        private static async Task<string> GetQueryValue(string query, Func<dynamic, string> jsonResultSelector)
+        {
+            using (var client = CreateClient())
+            {
+                var url = CreateQueryUri(query);
+
+                var response = await client.GetAsync(url);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var result = await response.Content.ReadAsStringAsync();
+                    dynamic json = JsonConvert.DeserializeObject<dynamic>(result);
+
+                    return jsonResultSelector(json);
+                }
+
+                return null;
+            }
+        }
+
+
+        private static string CreateQueryUri(string query)
+		{
+			var appId = ConfigurationManager.AppSettings[AppConstants.AppInsightsIdKey];
+			return string.Format(AppConstants.AppInsightsQueryEndpoint, appId, "query?query=", query);
+		}
+
     }
 }
 
