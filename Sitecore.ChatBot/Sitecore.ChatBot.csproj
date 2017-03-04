@@ -142,6 +142,8 @@
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Constants\AppConstants.cs" />
     <Compile Include="Controllers\MessagesController.cs" />
+    <Compile Include="Dialogs\LuisFailedRequestDialog.cs" />
+    <Compile Include="Dialogs\LuisGenericQueryDialog.cs" />
     <Compile Include="Dialogs\LuisIntentDialog.cs" />
     <Compile Include="Dialogs\LuisLogCountDialog.cs" />
     <Compile Include="Global.asax.cs">

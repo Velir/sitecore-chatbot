@@ -1,35 +1,44 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Web;
 using Microsoft.Bot.Builder.Dialogs;
-using Microsoft.Bot.Builder.Luis;
 using Microsoft.Bot.Builder.Luis.Models;
 using Sitecore.ChatBot.Services;
 
 namespace Sitecore.ChatBot.Dialogs
 {
-    [LuisModel("eb2abdfb-ade9-4dbf-96f7-3eda7b7596a6", "095cef5a0a844442a009402eff0436ff")]
-    [Serializable]
-    public partial class LuisIntentDialog : LuisDialog<object>
+    public partial class LuisIntentDialog
     {
-        private const string TimePeriodEntityPrefix = "builtin.datetime";
+        private const string ResourceEntityPrefix = "resource::";
 
-        [LuisIntent("")]
-        public async Task None(IDialogContext context, LuisResult result)
+        public string[] AvailableResources = { "Requests", "Exceptions" };
+
+
+        public string CurrentResource { get; set; }
+
+        [LuisIntent("Show Available Resources")]
+        public async Task ShowAvailableResources(IDialogContext context, LuisResult result)
         {
-            string message = $"Sorry, I did not understand :(";
-            await context.PostAsync(message);
+            var resources = string.Join(", ", AvailableResources);
+
+            await context.PostAsync($"Here are the available resources you may query on:\n {resources}");
             context.Wait(MessageReceived);
         }
 
-        [LuisIntent("View Total Requests")]
-        public async Task ViewTotalRequests(IDialogContext context, LuisResult result)
+        [LuisIntent("Perform Resource Query")]
+        public async Task QueryOnResource(IDialogContext context, LuisResult result)
         {
-            var entity = result.Entities.FirstOrDefault();
+            var resourceName =
+                result.Entities.FirstOrDefault(x => x.Type.StartsWith(ResourceEntityPrefix))?
+                    .Entity.Replace(ResourceEntityPrefix, string.Empty);
 
-            if (entity != null && entity.Type.StartsWith(TimePeriodEntityPrefix))
+            // Parse out (optional) time entity
+            var timespanEntity = result.Entities.FirstOrDefault(x => x.Type.StartsWith(TimePeriodEntityPrefix));
+            if (timespanEntity != null)
             {
-                string customPeriod = entity.Resolution.FirstOrDefault().Value;
+                string customPeriod = timespanEntity.Resolution.FirstOrDefault().Value;
 
                 DateTime dateTime;
                 if (DateTime.TryParse(customPeriod, out dateTime))
@@ -37,14 +46,14 @@ namespace Sitecore.ChatBot.Dialogs
                     // A date was specified, not a duration, so transform to a time period
                     customPeriod = $"{customPeriod}/{(dateTime + TimeSpan.FromDays(1)):yyyy-MM-dd}";
                 }
-                
+
                 var count = await AppInsightsService.GetNumberOfRequestsToServer(customPeriod);
 
                 if (string.IsNullOrWhiteSpace(count))
                 {
                     count = "0";
                 }
-                
+
                 await context.PostAsync($"There have been {count} requests to the server in the requested timeframe ({customPeriod})");
                 context.Wait(MessageReceived);
             }
@@ -55,8 +64,6 @@ namespace Sitecore.ChatBot.Dialogs
                 await context.PostAsync($"There have been a total of {count} requests to the server.");
                 context.Wait(MessageReceived);
             }
-
-            
         }
     }
 }
