@@ -9,7 +9,7 @@ using Sitecore.ChatBot.Utils;
 
 namespace Sitecore.ChatBot.Services
 {
-    public class AppInsightsService
+    public partial class AppInsightsService
     {
         public static Task<string> GetNumberOfRequestsToServer(TimeSpan? timePeriod = null, string period = null)
         {
