@@ -14,6 +14,14 @@ namespace Sitecore.ChatBot.Dialogs
     {
         private const string TimePeriodEntityPrefix = "builtin.datetime";
 
+        [LuisIntent("")]
+        public async Task None(IDialogContext context, LuisResult result)
+        {
+            string message = $"Sorry, I did not understand :(";
+            await context.PostAsync(message);
+            context.Wait(MessageReceived);
+        }
+
         [LuisIntent("View Total Requests")]
         public async Task ViewTotalRequests(IDialogContext context, LuisResult result)
         {
