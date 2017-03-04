@@ -11,7 +11,8 @@ namespace Sitecore.ChatBot.Services
     {
         public static Task<string> GetFailedRequestExceptions(int count = 10, TimeSpan? timeperiod = null)
         {
-            string query = "requests%20%20%7C%20where%20timestamp%20%3E%20ago(24h)%20and%20success%3D%3D%22False%22%20%7C%20join%20kind%3D%20inner%20(exceptions%20%20%7C%20where%20timestamp%20%3E%20ago(24h)%20)%20on%20operation_Id%20%20%7C%20project%20%20type%2C%20method%2C%20requestName%20%3D%20name%2C%20requestDuration%20%3D%20duration";
+
+            string query = Uri.EscapeDataString("requests | where timestamp > ago(7d) and success== \"False\"| join kind = inner(exceptions | where timestamp > ago(24h)) on operation_Id | project  type, method, requestName = name, requestDuration = duration| limit 10");
             return GetQueryResult(query);
         }
     }

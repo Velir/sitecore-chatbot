@@ -18,6 +18,7 @@ namespace Sitecore.ChatBot.Dialogs
                 var entity = result.Entities.FirstOrDefault();
 
                 var queryResult =  await AppInsightsService.GetFailedRequestExceptions(10, null);
+                
                 await context.PostAsync(queryResult);
                 context.Wait(MessageReceived);
             }

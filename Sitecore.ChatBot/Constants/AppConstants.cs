@@ -6,6 +6,6 @@
         public const string AppInsightsApiKey = "AppInsightsApiKey";
 
         public const string AppInsightsEndpoint = "https://api.applicationinsights.io/beta/apps/{0}/{1}/{2}";
-        public const string AppInsightsQueryEndpoint = "https://api.applicationinsights.io/beta/apps/query/query={0}";
+        public const string AppInsightsQueryEndpoint = "https://api.applicationinsights.io/beta/apps/{0}/query?query={1}";
     }
 }
