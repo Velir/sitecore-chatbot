@@ -15,7 +15,7 @@ namespace Sitecore.ChatBot.Dialogs
 
         [LuisIntent("Failed Request Exceptions Query")]
         public async Task FailedRequestExceptionQuery(IDialogContext context, LuisResult result)
-        {
+        {           
             //Retrieve Count if it exists
             int count = 10;
             EntityRecommendation entity = result.Entities.FirstOrDefault(x => x.Type == "builtin.number");
@@ -53,7 +53,11 @@ namespace Sitecore.ChatBot.Dialogs
                 query = await AppInsightsService.GetFailedRequestExceptions(count: count);
             }
 
-            await context.PostAsync(query);
+            var message = context.MakeMessage();
+            message.Text = query;
+            message.TextFormat = "markdown";
+
+            await context.PostAsync(message);
             context.Wait(MessageReceived);
         }
 
