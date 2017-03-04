@@ -11,17 +11,15 @@ namespace Sitecore.ChatBot.Services
 {
     public partial class AppInsightsService
     {
-        public static Task<string> GetNumberOfRequestsToServer(TimeSpan? timePeriod = null, string period = null)
+        public static Task<string> GetNumberOfRequestsToServer(string period = null)
         {
             const string metric = "requests/count";
-            period = period ?? (timePeriod != null ? DateConversionUtil.ToInsightsTimespan(timePeriod.Value) : null);
             return GetMetricValue(metric, period);
         }
 
-        public static Task<string> GetNumberOfFailedRequests(TimeSpan? timePeriod = null, string period = null)
+        public static Task<string> GetNumberOfFailedRequests(string period = null)
         {
             const string metric = "requests/failed";
-            period = period ?? (timePeriod != null ? DateConversionUtil.ToInsightsTimespan(timePeriod.Value) : null);
             return GetMetricValue(metric, period);
         }
 

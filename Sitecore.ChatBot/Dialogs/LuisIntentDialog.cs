@@ -12,22 +12,41 @@ namespace Sitecore.ChatBot.Dialogs
     [Serializable]
     public partial class LuisIntentDialog : LuisDialog<object>
     {
-        private const string TimePeriodEntity = "builtin.datetime.duration";
+        private const string TimePeriodEntityPrefix = "builtin.datetime";
+
+        [LuisIntent("")]
+        public async Task None(IDialogContext context, LuisResult result)
+        {
+            string message = $"Sorry, I did not understand :(";
+            await context.PostAsync(message);
+            context.Wait(MessageReceived);
+        }
 
         [LuisIntent("View Total Requests")]
         public async Task ViewTotalRequests(IDialogContext context, LuisResult result)
         {
             var entity = result.Entities.FirstOrDefault();
 
-            if (entity != null && entity.Type == TimePeriodEntity)
+            if (entity != null && entity.Type.StartsWith(TimePeriodEntityPrefix))
             {
-                TimeSpan span;
-                TimeSpan? timeSpan = TimeSpan.TryParse(entity.Entity, out span) ? (TimeSpan?) span : null;
-                var count = await AppInsightsService.GetNumberOfRequestsToServer(timeSpan, entity.Resolution.FirstOrDefault().Value);
+                string customPeriod = entity.Resolution.FirstOrDefault().Value;
 
-                var timeString = timeSpan == null ? entity.Resolution.FirstOrDefault().Value : timeSpan.ToString();
+                DateTime dateTime;
+                if (DateTime.TryParse(customPeriod, out dateTime))
+                {
+                    // A date was specified, not a duration, so transform to a time period
+                    customPeriod = $"{customPeriod}/{(dateTime + TimeSpan.FromDays(1)):yyyy-MM-dd}";
+                }
 
-                await context.PostAsync($"There have been {count} requests to the server in the requested timeframe ({timeString})");
+
+                var count = await AppInsightsService.GetNumberOfRequestsToServer(customPeriod);
+
+                if (string.IsNullOrWhiteSpace(count))
+                {
+                    count = "0";
+                }
+                
+                await context.PostAsync($"There have been {count} requests to the server in the requested timeframe ({customPeriod})");
                 context.Wait(MessageReceived);
             }
             else
