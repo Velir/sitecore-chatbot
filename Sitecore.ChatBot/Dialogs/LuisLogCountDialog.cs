@@ -21,7 +21,7 @@ namespace Sitecore.ChatBot.Dialogs
 			var entitySeverity = result.Entities.FirstOrDefault(x => x.Type == "severity");
 			var severity = ResolveSeverity(entitySeverity != null ? entitySeverity.Entity : string.Empty);
 
-			if (entityDateTime != null && entityDateTime.Type == TimePeriodEntity)
+			if (entityDateTime != null && entityDateTime.Type.StartsWith(TimePeriodEntityPrefix))
 			{
 				TimeSpan span;
 				TimeSpan? timeSpan = TimeSpan.TryParse(entityDateTime.Entity, out span) ? (TimeSpan?) span : null;

@@ -14,16 +14,16 @@ namespace Sitecore.ChatBot.Services
         public static Task<string> GetNumberOfRequestsToServer(string period = null)
         {
             const string metric = "requests/count";
-            return GetMetricValue(metric, period);
+            return GetMetricValue(metric, period, json => json.value[metric].sum);
         }
 
         public static Task<string> GetNumberOfFailedRequests(string period = null)
         {
             const string metric = "requests/failed";
-            return GetMetricValue(metric, period);
+            return GetMetricValue(metric, period, json => json.value[metric].sum);
         }
 
-        private static async Task<string> GetMetricValue(string metricName, string timePeriod)
+        private static async Task<string> GetMetricValue(string metricName, string timePeriod, Func<dynamic, string> jsonResultSelector)
         {
             using (var client = CreateClient())
             {
@@ -39,7 +39,7 @@ namespace Sitecore.ChatBot.Services
                     var result = await response.Content.ReadAsStringAsync();
                     dynamic json = JsonConvert.DeserializeObject<dynamic>(result);
 
-                    return json.value[metricName].sum;
+                    return jsonResultSelector(json);
                 }
 
                 return null;

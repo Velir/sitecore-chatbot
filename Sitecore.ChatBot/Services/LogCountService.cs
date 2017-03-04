@@ -13,13 +13,13 @@ namespace Sitecore.ChatBot.Services
 		{
 			string logLevel = $"customMetrics/Sitecore.System\\Logging | {severity} Logged / sec";
 			period = period ?? (timePeriod != null ? DateConversionUtil.ToInsightsTimespan(timePeriod.Value) : null);
-			return GetMetricValue(logLevel, period);
+			return GetMetricValue(logLevel, period, json => json.value["customMetrics/Sitecore.System/Logging | Logged / sec"].count);
 		}
 
 		public static Task<string> GetNumberOfLogEntries(string severity,string period = null)
 		{
 			string logLevel = $"customMetrics/Sitecore.System\\Logging | {severity} Logged / sec";
-			return GetMetricValue(logLevel, period);
+			return GetMetricValue(logLevel, period, json => json.value["customMetrics/Sitecore.System/Logging | Logged / sec"].count);
 		}
 	}
 }
