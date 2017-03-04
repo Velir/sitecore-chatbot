@@ -18,12 +18,15 @@ namespace Sitecore.ChatBot.Dialogs
 		[LuisIntent("View Daily Stats")]
 		public async Task ViewDailyStats(IDialogContext context, LuisResult result)
 		{
+			var exceptionCount = await AppInsightsService.GetDailyExceptions();
+            var requestCount = await AppInsightsService.GetDailyRequests();
+		    var cacheClearCount = await AppInsightsService.GetDailyCacheClearings();
 
-			var results = await AppInsightsService.GetDailyStats(null);
-
-			await context.PostAsync($"Your daily stats are: ");
-			await context.PostAsync($"{results}");
-			context.Wait(MessageReceived);
+            await context.PostAsync("Your daily stats are:");
+			await context.PostAsync($"{exceptionCount} exceptions in the last 24 hours.");
+            await context.PostAsync($"{requestCount} requests in the last 24 hours.");
+            await context.PostAsync($"{cacheClearCount} Sitecore cache clears in the last 24 hours.");
+            context.Wait(MessageReceived);
 		}
 
 
