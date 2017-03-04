@@ -8,6 +8,7 @@ using System.Web.Http.Description;
 using Microsoft.Bot.Connector;
 using Newtonsoft.Json;
 using Sitecore.ChatBot.Services;
+using Microsoft.Bot.Builder.Dialogs;
 
 namespace Sitecore.ChatBot
 {
@@ -26,7 +27,7 @@ namespace Sitecore.ChatBot
 
                 if (activity.Text == "count")
                 {
-                    var count = await AppInsightsService.GetNumberOfRequestsToServer();
+                    var count = await AppInsightsService.GetNumberOfRequestsToServer(null);
 
                     Activity countReply = activity.CreateReply($"Number of requests to the server: {count}");
                     await connector.Conversations.ReplyToActivityAsync(countReply);

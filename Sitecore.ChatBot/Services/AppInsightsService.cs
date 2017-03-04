@@ -1,60 +1,69 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Configuration;
-using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
-using System.Web;
-using Microsoft.Azure.Insights;
-using Microsoft.Bot.Connector;
-using Microsoft.Rest;
-using Microsoft.WindowsAzure;
 using Newtonsoft.Json;
 using Sitecore.ChatBot.Constants;
+using Sitecore.ChatBot.Utils;
 
 namespace Sitecore.ChatBot.Services
 {
     public class AppInsightsService
     {
-        public static async Task<string> GetNumberOfRequestsToServer()
+        public static Task<string> GetNumberOfRequestsToServer(TimeSpan? timePeriod)
         {
-            var apiKey = ConfigurationManager.AppSettings[AppConstants.AppInsightsApiKey];
-            var appId = ConfigurationManager.AppSettings[AppConstants.AppInsightsIdKey];
-            //var creds = new MicrosoftAppCredentials()
-            //{
-            //    UserName = apiKey
-            //};
+            const string metric = "requests/count";
+            return GetMetricValue(metric, timePeriod);
+        }
 
-            //using (var client = new InsightsClient(creds))
-            //{
-            //    client.SubscriptionId = "10616ee3-2788-4e6d-857b-91adf3a7e6a0";
-            //    client.id
+        public static Task<string> GetNumberOfFailedRequests(TimeSpan? timePeriod)
+        {
+            const string metric = "requests/failed";
+            return GetMetricValue(metric, timePeriod);
+        }
 
-            //    var result = await client.Metrics.ListAsync("requests/count");
-
-            //    return result.FirstOrDefault()?.Data?.FirstOrDefault()?.Count.ToString() ?? "Unknown Value";
-            //}
-
-            using (var client = new HttpClient())
+        private static async Task<string> GetMetricValue(string metricName, TimeSpan? timePeriod)
+        {
+            using (var client = CreateClient())
             {
-                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                client.DefaultRequestHeaders.Add("x-api-key", apiKey);
+                var url = CreateMetricUri(metricName);
+                url = timePeriod == null
+                    ? url
+                    : $"{url}?timespan={DateConversionUtil.ToInsightsTimespan(timePeriod.Value)}";
 
-                var req = string.Format(AppConstants.AppInsightsEndpoint, appId, "metrics", "requests/count");
-                var response = await client.GetAsync(req);
+                var response = await client.GetAsync(url);
 
                 if (response.IsSuccessStatusCode)
                 {
                     var result = await response.Content.ReadAsStringAsync();
                     dynamic json = JsonConvert.DeserializeObject<dynamic>(result);
 
-                    return json.value["requests/count"].sum;
+                    return json.value[metricName].sum;
                 }
 
                 return null;
             }
+        }
 
+        private static string CreateMetricUri(string metricName)
+        {
+            var appId = ConfigurationManager.AppSettings[AppConstants.AppInsightsIdKey];
+            return string.Format(AppConstants.AppInsightsEndpoint, appId, "metrics", metricName);
+        }
+
+        private static HttpClient CreateClient()
+        {
+            var apiKey = ConfigurationManager.AppSettings[AppConstants.AppInsightsApiKey];
+            var appId = ConfigurationManager.AppSettings[AppConstants.AppInsightsIdKey];
+
+            var client = new HttpClient();
+
+            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            client.DefaultRequestHeaders.Add("x-api-key", apiKey);
+
+            return client;
         }
     }
 }
+
