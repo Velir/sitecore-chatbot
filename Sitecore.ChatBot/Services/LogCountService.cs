@@ -21,5 +21,8 @@ namespace Sitecore.ChatBot.Services
 			string logLevel = $"customMetrics%2FSitecore.System%5CLogging%20%7C%20{severity}%20Logged%20%2F%20sec?aggregation=unique";
 			return GetMetricValue(logLevel, period, json => json.value[$"customMetrics/Sitecore.System\\Logging | {severity} Logged / sec"].unique);
 		}
+
+       
+      
 	}
 }

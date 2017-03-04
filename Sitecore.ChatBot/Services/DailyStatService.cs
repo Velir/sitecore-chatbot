@@ -12,7 +12,7 @@ namespace Sitecore.ChatBot.Services
 		public static Task<string> GetDailyStats(string severity, string period = null)
 		{
 			string query = $"exceptions%20%20%7C%20where%20timestamp%20%3E%20ago(24h)%20%20%7C%20count";
-			return GetQueryValue(query, json => json);
+			return GetQueryValue(query, json => json.ToString());
 		}
 	}
 }

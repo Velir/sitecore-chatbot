@@ -46,10 +46,27 @@ namespace Sitecore.ChatBot.Services
             }
         }
 
+        private static async Task<string> GetQueryResult(string query)
+        {
+            using (var client = CreateClient())
+            {
+                var url = CreateQueryUri(query);
+
+                return url;
+            }
+            
+        } 
+
         private static string CreateMetricUri(string metricName)
         {
             var appId = ConfigurationManager.AppSettings[AppConstants.AppInsightsIdKey];
             return string.Format(AppConstants.AppInsightsEndpoint, appId, "metrics", metricName);
+        }
+
+        private static string CreateQueryUri(string query)
+        {
+            var appId = ConfigurationManager.AppSettings[AppConstants.AppInsightsIdKey];
+            return string.Format(AppConstants.AppInsightsQueryEndpoint, appId, query);
         }
 
         private static HttpClient CreateClient()
@@ -86,11 +103,6 @@ namespace Sitecore.ChatBot.Services
         }
 
 
-        private static string CreateQueryUri(string query)
-		{
-			var appId = ConfigurationManager.AppSettings[AppConstants.AppInsightsIdKey];
-			return string.Format(AppConstants.AppInsightsQueryEndpoint, appId, "query?query=", query);
-		}
 
     }
 }
