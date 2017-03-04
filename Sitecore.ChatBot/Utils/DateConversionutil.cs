@@ -15,5 +15,15 @@ namespace Sitecore.ChatBot.Utils
 
             return builder.ToString();
         }
+
+        public static string ToInsightsQueryTimeInterval(string period)
+        {
+            //Convert the provided period to a time interval that is compatible with App Insights query 
+            //syntax, specifically the ago() operator
+            period = period.ToLower();
+            period = period.Replace("pt", "");
+
+            return period;
+        }
     }
 }
