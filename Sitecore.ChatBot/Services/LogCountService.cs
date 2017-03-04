@@ -21,5 +21,8 @@ namespace Sitecore.ChatBot.Services
 			string logLevel = $"customMetrics/Sitecore.System\\Logging | {severity} Logged / sec";
 			return GetMetricValue(logLevel, period);
 		}
+
+       
+      
 	}
 }
