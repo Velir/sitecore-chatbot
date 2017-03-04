@@ -7,6 +7,7 @@ using System.Web.Http;
 using System.Web.Http.Description;
 using Microsoft.Bot.Connector;
 using Newtonsoft.Json;
+using Sitecore.ChatBot.Services;
 
 namespace Sitecore.ChatBot
 {
@@ -22,17 +23,29 @@ namespace Sitecore.ChatBot
             if (activity.Type == ActivityTypes.Message)
             {
                 ConnectorClient connector = new ConnectorClient(new Uri(activity.ServiceUrl));
-                // calculate something for us to return
-                int length = (activity.Text ?? string.Empty).Length;
 
-                // return our reply to the user
-                Activity reply = activity.CreateReply($"You sent {activity.Text} which was {length} characters");
-                await connector.Conversations.ReplyToActivityAsync(reply);
+                if (activity.Text == "count")
+                {
+                    var count = await AppInsightsService.GetNumberOfRequestsToServer();
+
+                    Activity countReply = activity.CreateReply($"Number of requests to the server: {count}");
+                    await connector.Conversations.ReplyToActivityAsync(countReply);
+                }
+                else // This is the sample code...
+                {
+                    // calculate something for us to return
+                    int length = (activity.Text ?? string.Empty).Length;
+
+                    // return our reply to the user
+                    Activity reply = activity.CreateReply($"You sent {activity.Text} which was {length} characters");
+                    await connector.Conversations.ReplyToActivityAsync(reply);
+                }
             }
             else
             {
                 HandleSystemMessage(activity);
             }
+
             var response = Request.CreateResponse(HttpStatusCode.OK);
             return response;
         }
