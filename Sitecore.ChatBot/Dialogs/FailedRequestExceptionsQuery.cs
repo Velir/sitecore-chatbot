@@ -21,7 +21,7 @@ namespace Sitecore.ChatBot.Dialogs
             EntityRecommendation entity = result.Entities.FirstOrDefault(x => x.Type == "builtin.number");
             if (entity != null)
             {
-                int.TryParse(entity.Entity, out count);
+                int.TryParse(entity.Resolution?.Values.FirstOrDefault(), out count);
             }
 
             string query = string.Empty;
@@ -32,24 +32,27 @@ namespace Sitecore.ChatBot.Dialogs
                 switch (dateEntity.Type)
                 {
                     case "builtin.datetime.duration":
-                        string queryTimeInterval = DateConversionUtil.ToInsightsQueryTimeInterval(dateEntity.Resolution.FirstOrDefault().Value);
+                        string queryTimeInterval =
+                            DateConversionUtil.ToInsightsQueryTimeInterval(dateEntity.Resolution.FirstOrDefault().Value);
                         query = await AppInsightsService.GetFailedRequestExceptions(queryTimeInterval, count);
                         break;
                     case "builtin.datetime.date":
                         string startDateTime = dateEntity.Resolution.FirstOrDefault().Value;
                         DateTime dateTime;
-                        if (!DateTime.TryParse(startDateTime, out dateTime))
+                        if (DateTime.TryParse(startDateTime, out dateTime))
                         {
-                            goto default;
+
+
+                            query = await AppInsightsService.GetFailedRequestExceptions(dateTime, count);
                         }
-                        query = await AppInsightsService.GetFailedRequestExceptions(dateTime, count);
-                        break;
-                    default:
-                        query = await AppInsightsService.GetFailedRequestExceptions(null, count);
                         break;
                 }
             }
-           
+            else
+            {
+                query = await AppInsightsService.GetFailedRequestExceptions(count: count);
+            }
+
             await context.PostAsync(query);
             context.Wait(MessageReceived);
         }
